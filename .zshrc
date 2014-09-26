@@ -34,6 +34,7 @@ alias td="todo.sh"
 
 alias c="cd"
 
+# Various paths
 CCACHE_TOOLS="/usr/lib/ccache/bin"
 DISTCC_TOOLS="/usr/lib/distcc/bin"
 
@@ -47,12 +48,14 @@ export EDITOR=vim
 USERCOLOR="green"
 export ABSROOT=$HOME/abs
 
+# global variables for some functions below
 stackthing=()
 stackptr=1
 stackcur=0
 
 distcc_enabled=0
 
+# push something onto the stack
 function push {
 	if [[ $1 != "" ]]; then
 		pushvar=$1
@@ -64,6 +67,7 @@ function push {
 	stackcur=$pushvar
 }
 
+# pop something off the stack
 function pop {
 	if [[ $stackptr > 1 ]]; then
 		echo $stackthing[$((--stackptr))]
@@ -71,16 +75,19 @@ function pop {
 	fi
 }
 
+# dump the current stack
 function dumpstack {
 	for (( i=1; i < stackptr; i++ )); do
 		echo $stackthing[$((i))];
 	done
 }
 
+# Commands to be executed after changing directory
 function chpwd { 
 	ls
 }
 
+# Commands to be executed before displaying the prompt
 function preexec {
 	USERSTRING="%{$fg_bold[$USERCOLOR]%}%n%{$reset_color%}"
 	HOSTSTRING="%{$fg_bold[black]%}%m%{$reset_color%}"
@@ -88,12 +95,15 @@ function preexec {
 "┆ %~ | $USERSTRING@$HOSTSTRING | %*
 └─┤ "
 }
+
+# old preexec function
 function unused {
 
 	PROMPT="$fg_bold[black][$reset_color%~$fg_bold[black]]$reset_color "
 	PROMPT="[$USERSTRING] @ [$HOSTSTRING] %~ $ "
 }
 
+# fork to the background, under the init process
 function forkp {
 	if [ -z "$1" ]; then return 1; fi
 
@@ -103,29 +113,34 @@ function forkp {
 	fi
 }
 
+# disable saving any history
 function privatezsh {
 	HISTFILE=/dev/null
 	HISTSIZE=0
 	SAVEHIST=0
 }
 
+# re-enable saving history
 function unprivatezsh { 
 	HISTFILE=~/.histfile
 	HISTSIZE=1000
 	SAVEHIST=1000
 }
 
+# exit without saving any history
 function safeexit {
 	privatezsh
 	exit
 }
 
+# insert the path of distcc utils into $PATH
 function enable_distcc {
 	distcc_enabled=1;
 
 	export PATH="$DISTCC_TOOLS:$STDTOOLS"
 }
 
+# remove distcc utils from $PATH
 function disable_distcc {
 	distcc_enabled=0;
 	export PATH="$STDTOOLS"
